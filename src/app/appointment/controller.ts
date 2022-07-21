@@ -9,6 +9,8 @@ import { ExpressSuccessResponse, route } from "../../infra/express";
 import { AppointmentRepository } from "../../ports/repositories/appointment";
 import { ListAppointmentCommand } from "../../commands/ListAppointmentsCommand";
 import { PickAppointmentCommand } from "../../commands/PickAppointmentCommand";
+import { DeleteAppointmentCommand } from "../../commands/DeleteAppointmentCommand";
+import { CompleteAppointmentCommand } from "../../commands/CompleteAppointmentCommand";
 
 import { CreateBody, createBodySchema,  GetParams, ListQuery, PickBody, PickParams } from "./definition";
 
@@ -26,6 +28,8 @@ export class AppointmentController {
 		this.router.post("/:id/pick", route(this.handlePick));
 		this.router.get("/:id", route(this.handleGet));
 		this.router.get("/", route(this.handleList))
+		this.router.delete("/:id", route(this.handleDelete));
+		this.router.post("/:id/complete", route(this.handleComplete));
 	}
 
 	process() {
@@ -85,4 +89,30 @@ export class AppointmentController {
 
 		this.nodeCliOutput.print(`[${id} record] has been picked`);
 	} 
+
+	handleDelete = async (req: Request<GetParams, ExpressSuccessResponse<string>>, res: Response): Promise<void> => {
+		const { id } = req.params;
+		
+		await new DeleteAppointmentCommand(this.appointmentRepository).execute({ id });
+
+		this.nodeCliOutput.print(`[${id}] has been deleted`);
+
+		res.status(204);
+	}
+
+	handleComplete = async (req: Request<GetParams, ExpressSuccessResponse<string>>, res: Response): Promise<AppointmentRecord> => {
+		const { id } = req.params;
+		
+		const appointment = await new CompleteAppointmentCommand(this.appointmentRepository).execute({ id });
+
+		this.nodeCliOutput.print(`[${id}] has been completed`);
+
+		res.status(200);
+
+		return Appointment.toRecord(appointment);
+	}
+
+
+
+	
 }

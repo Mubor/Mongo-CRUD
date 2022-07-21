@@ -8,21 +8,21 @@ export type AppointmentDocument = Omit<AppointmentRecord, "id">;
 const schema = new Schema<AppointmentDocument>({
 	ticket: {
 		type: String,
-		required: true
+		required: true,
 	},
-  assignee: {
+  	assignee: {
 		type: { fullName: String, email: String },
 		required: true,
 		_id: false,
 	},
-  operator: {
+  	operator: {
 		type: { fullName: String, email: String },
 		required: false,
 		_id: false,
 	},
-  completed: {
+  	completed: {
 		type: Boolean,
-		required: true
+		required: true,
 	},
 }, {
 	versionKey: false,
